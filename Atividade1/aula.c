@@ -31,21 +31,21 @@ struct Compra
   float total;
 };
 
-int registrarCliente(struct Cliente clientes[], int quantidadeCliente)
+int registrarCliente(struct Cliente clientes[], int totalClientes)
 {
   printf("\n===== REGRISTRO DE CLIENTE =====\n");
   printf("Informe o primeiro nome do cliente: ");
-  scanf("%99s", clientes[quantidadeCliente].nome_cliente);
+  scanf("%99s", clientes[totalClientes].nome_cliente);
   printf("Informe a idade do cliente: ");
-  scanf("%d", &clientes[quantidadeCliente].idade);
+  scanf("%d", &clientes[totalClientes].idade);
   printf("Informar senha para o cliente (3 digitos): ");
-  scanf("%d", &clientes[quantidadeCliente].senha);
+  scanf("%d", &clientes[totalClientes].senha);
   printf("=================================\n");
-  clientes[quantidadeCliente].saldo = 100.0;
-  return quantidadeCliente + 1;
+  clientes[totalClientes].saldo = 100.0;
+  return totalClientes + 1;
 };
 
-int loginCliente(struct Cliente clientes[], int quantidadeCliente)
+int loginCliente(struct Cliente clientes[], int totalClientes)
 {
   char nome[50];
   int senha;
@@ -56,7 +56,7 @@ int loginCliente(struct Cliente clientes[], int quantidadeCliente)
   scanf("%d", &senha);
   printf("=================================\n");
 
-  for (int i = 0; i < quantidadeCliente; i++)
+  for (int i = 0; i < totalClientes; i++)
   {
     if (strcmp(clientes[i].nome_cliente, nome) == 0 &&
         clientes[i].senha == senha)
@@ -82,14 +82,47 @@ void exibirProdutos(struct Produto produto[], int total)
   printf("=================================\n");
 };
 
-void exibirMenuCompra(struct Produto produto, int totalProdutos)
+void exibirMenuCompra(struct Produto produtos[], struct Cliente clientes[], int posicaoCliente, int totalProdutos)
 {
-  printf("===== MENU de COMPRA =====\n");
+  int opcao;
+  do
+  {
+    printf("\n======= SISTEMA DE COMPRA =======");
+    printf("\n===== MENU de COMPRA =====\n");
+    printf("1. Comprar\n");
+    printf("2. Ver saldo\n");
+    printf("3. Adicionar Saldo\n");
+    printf("4. Sair\n");
+    printf("\nEscolha uma opcao: ");
+    scanf("%d", &opcao);
+
+    switch (opcao)
+    {
+    case 1:
+      break;
+    case 2:
+      printf("\nSaldo atual: %.2f\n", clientes[posicaoCliente].saldo);
+      break;
+    case 3:
+      clientes[posicaoCliente].saldo = clientes[posicaoCliente].saldo + 50.0;
+      printf("\nSaldo atual: %.2f\n", clientes[posicaoCliente].saldo);
+      break;
+
+    case 4:
+      break;
+
+    default:
+      printf("\nOpcao nao é válida.\n");
+      break;
+    }
+
+  } while (opcao != 4);
+  return 0;
 };
 
 int main()
 {
-  struct Produto produto[50] = {
+  struct Produto produtos[50] = {
       {1, "Arroz 5kg", 15.90, 30, false},
       {2, "Feijao 1kg", 8.40, 40, false},
       {3, "Oleo de Soja", 7.20, 25, false},
@@ -103,14 +136,13 @@ int main()
   int totalProdutos = 10;
   struct Compra compra[10];
   struct Cliente clientes[10];
-  int quantidadeCliente = 0;
+  int totalClientes = 0;
   int posicaoCliente;
   int opcao;
   do
   {
     printf("\n======= SISTEMA DE COMPRA =======");
     printf("\n======= Menu Principal =======\n");
-    printf("Atencaoo: Necessario registrar cliente.\n");
     printf("1. Registrar Cliente\n");
     printf("2. Login de Cliente\n");
     printf("3. Sair\n");
@@ -120,10 +152,10 @@ int main()
     switch (opcao)
     {
     case 1:
-      quantidadeCliente = registrarCliente(clientes, quantidadeCliente);
+      totalClientes = registrarCliente(clientes, totalClientes);
       break;
     case 2:
-      posicaoCliente = loginCliente(clientes, quantidadeCliente);
+      posicaoCliente = loginCliente(clientes, totalClientes);
       if (posicaoCliente = -1)
       {
         printf("\nCliente não encontrado.\n");
@@ -131,7 +163,7 @@ int main()
       }
       break;
     case 3:
-      printf("\nPrograma finaliado.\n");
+      printf("\nPrograma finalizado.\n");
       break;
 
     default:
