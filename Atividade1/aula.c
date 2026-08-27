@@ -83,6 +83,7 @@ void exibirProdutos(struct Produto produtos[], int totalProdutos)
 
 void gerarPainelOnlineDeCompras(struct Produto produtos[], struct Compra compra[], int item)
 {
+  float total;
   printf("\n===== Carrinho =====\n");
   printf("%-6s %-20s %-10s %-10s\n", "Cod", "Nome", "Qtd", "Subtotal");
   if (item != 0)
@@ -92,10 +93,38 @@ void gerarPainelOnlineDeCompras(struct Produto produtos[], struct Compra compra[
       printf("%-6d %-20s %-10d R$%-8.2f\n",
              compra[i].id_produto + 1, produtos[compra[i].id_produto].nome_produto,
              compra[i].qtd_desejada, compra[i].subtotal);
+      total = total + compra[i].subtotal;
     }
   }
+  printf("\nTotal: %.2f\n", total);
   printf("=================================\n");
 }
+
+int removerProdutoDaCompra(struct Compra compra[], int item, int codigo)
+{
+  int posicao = -1;
+  for (int i = 0; i < item; i++)
+  {
+    if (compra[i].id_produto == codigo - 1)
+    {
+      posicao = i;
+      break;
+    }
+  }
+  if (posicao == -1)
+  {
+    printf("\nProduto nao encontrado!\n");
+    return item;
+  }
+  for (int i = posicao; i < item - 1; i++)
+  {
+    compra[i] = compra[i + 1];
+  }
+
+  printf("\nProduto removido com sucesso!\n");
+
+  return item - 1;
+};
 
 void gerarCarrinhoDeCompras(struct Produto produtos[], struct Compra compra[], int totalProdutos)
 {
@@ -139,6 +168,9 @@ void gerarCarrinhoDeCompras(struct Produto produtos[], struct Compra compra[], i
       item = item + 1;
       break;
     case 2:
+      printf("\nInforme o codigo do produto: ");
+      scanf("%d", &codigo);
+      item = removerProdutoDaCompra(compra, item, codigo);
       break;
     case 3:
       break;
@@ -146,7 +178,7 @@ void gerarCarrinhoDeCompras(struct Produto produtos[], struct Compra compra[], i
       break;
 
     default:
-      printf("\nOpcao nao é válida.\n");
+      printf("\nOpcao nao e valida.\n");
       break;
     }
     printf("=================================\n");
