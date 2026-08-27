@@ -38,7 +38,7 @@ int registrarCliente(struct Cliente clientes[], int totalClientes)
   scanf("%99s", clientes[totalClientes].nome_cliente);
   printf("Informe a idade do cliente: ");
   scanf("%d", &clientes[totalClientes].idade);
-  printf("Informar senha para o cliente (3 digitos): ");
+  printf("Informe uma senha (3 digitos): ");
   scanf("%d", &clientes[totalClientes].senha);
   printf("=================================\n");
   clientes[totalClientes].saldo = 100.0;
@@ -117,7 +117,6 @@ void exibirMenuCompra(struct Produto produtos[], struct Cliente clientes[], int 
     }
 
   } while (opcao != 4);
-  return 0;
 };
 
 int main()
@@ -153,14 +152,17 @@ int main()
     {
     case 1:
       totalClientes = registrarCliente(clientes, totalClientes);
+      posicaoCliente = totalClientes - 1;
+      exibirMenuCompra(produtos, clientes, posicaoCliente, totalProdutos);
       break;
     case 2:
       posicaoCliente = loginCliente(clientes, totalClientes);
-      if (posicaoCliente = -1)
+      if (posicaoCliente == -1)
       {
-        printf("\nCliente não encontrado.\n");
+        printf("\nCliente nao encontrado.\n");
         break;
       }
+      exibirMenuCompra(produtos, clientes, posicaoCliente, totalProdutos);
       break;
     case 3:
       printf("\nPrograma finalizado.\n");
