@@ -5,7 +5,7 @@
 ## Entidades:
 Cliente (id_cliente, nome_cliente, idade, senha, saldo)  
 Produto (id_produto, nome_produto, estoque, valor_unidade. tem_idade_restrita)  
-Compra (id_compra, id_cliente, id_produto, qtd_desejada, valor_unidade, subtotal, total)  
+Compra (id_compra, id_cliente, id_produto, qtd_desejada, valor_unidade, subtotal)  
 
 ## Regras:
 

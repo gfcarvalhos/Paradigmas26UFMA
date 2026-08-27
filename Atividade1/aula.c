@@ -28,7 +28,6 @@ struct Compra
   int qtd_desejada;
   float valor_unidade;
   float subtotal;
-  float total;
 };
 
 int registrarCliente(struct Cliente clientes[], int totalClientes)
@@ -69,26 +68,99 @@ int loginCliente(struct Cliente clientes[], int totalClientes)
   return -1;
 }
 
-void exibirProdutos(struct Produto produto[], int total)
+void exibirProdutos(struct Produto produtos[], int totalProdutos)
 {
   printf("\n===== CATALOGO DE PRODUTOS =====\n");
   printf("%-6s %-20s %-10s %-10s\n", "Cod", "Nome", "Preco", "Estoque");
-  for (int i = 0; i < total; i++)
+  for (int i = 0; i < totalProdutos; i++)
   {
     printf("%-6d %-20s R$%-8.2f %-10d\n",
-           produto[i].id_produto, produto[i].nome_produto,
-           produto[i].valor_unitario, produto[i].estoque);
+           produtos[i].id_produto, produtos[i].nome_produto,
+           produtos[i].valor_unitario, produtos[i].estoque);
   }
   printf("=================================\n");
+};
+
+void gerarPainelOnlineDeCompras(struct Produto produtos[], struct Compra compra[], int item)
+{
+  printf("\n===== Carrinho =====\n");
+  printf("%-6s %-20s %-10s %-10s\n", "Cod", "Nome", "Qtd", "Subtotal");
+  if (item != 0)
+  {
+    for (int i = 0; i < item; i++)
+    {
+      printf("%-6d %-20s %-10d R$%-8.2f\n",
+             compra[i].id_produto + 1, produtos[compra[i].id_produto].nome_produto,
+             compra[i].qtd_desejada, compra[i].subtotal);
+    }
+  }
+  printf("=================================\n");
+}
+
+void gerarCarrinhoDeCompras(struct Produto produtos[], struct Compra compra[], int totalProdutos)
+{
+  int opcao;
+  int item = 0;
+  int codigo;
+  int qtd;
+  do
+  {
+    exibirProdutos(produtos, totalProdutos);
+    gerarPainelOnlineDeCompras(produtos, compra, item);
+    printf("\n===== ACOES =====\n");
+    printf("1. Adicionar um produto\n");
+    printf("2. Remover um produto\n");
+    printf("3. Finalizar compra\n");
+    printf("4.Sair\n");
+    printf("\nEscolha uma opcao: ");
+    scanf("%d", &opcao);
+
+    switch (opcao)
+    {
+    case 1:
+      printf("\nInforme o codigo do produto: ");
+      scanf("%d", &codigo);
+      if (codigo > totalProdutos + 1 || codigo < 0)
+      {
+        printf("Codigo invalido!\n");
+        break;
+      }
+      printf("Informe a quantidade: ");
+      scanf("%d", &qtd);
+      if (qtd > produtos[codigo - 1].estoque || qtd < 0)
+      {
+        printf("\nQuantidade invalida!\n");
+        break;
+      }
+      compra[item].id_produto = codigo - 1;
+      compra[item].qtd_desejada = qtd;
+      compra[item].valor_unidade = produtos[codigo - 1].valor_unitario;
+      compra[item].subtotal = produtos[codigo - 1].valor_unitario * qtd;
+      item = item + 1;
+      break;
+    case 2:
+      break;
+    case 3:
+      break;
+    case 4:
+      break;
+
+    default:
+      printf("\nOpcao nao é válida.\n");
+      break;
+    }
+    printf("=================================\n");
+  } while (opcao != 4);
 };
 
 void exibirMenuCompra(struct Produto produtos[], struct Cliente clientes[], int posicaoCliente, int totalProdutos)
 {
   int opcao;
+  struct Compra compra[10];
   do
   {
     printf("\n======= SISTEMA DE COMPRA =======");
-    printf("\n===== MENU de COMPRA =====\n");
+    printf("\n===== MENU DE COMPRA =====\n");
     printf("1. Comprar\n");
     printf("2. Ver saldo\n");
     printf("3. Adicionar Saldo\n");
@@ -99,6 +171,7 @@ void exibirMenuCompra(struct Produto produtos[], struct Cliente clientes[], int 
     switch (opcao)
     {
     case 1:
+      gerarCarrinhoDeCompras(produtos, compra, totalProdutos);
       break;
     case 2:
       printf("\nSaldo atual: %.2f\n", clientes[posicaoCliente].saldo);
@@ -115,7 +188,7 @@ void exibirMenuCompra(struct Produto produtos[], struct Cliente clientes[], int 
       printf("\nOpcao nao é válida.\n");
       break;
     }
-
+    printf("=================================\n");
   } while (opcao != 4);
 };
 
@@ -171,6 +244,7 @@ int main()
     default:
       printf("\nOpcao nao é válida.\n");
     }
+    printf("=================================\n");
   } while (opcao != 3);
 
   return 0;
