@@ -3,9 +3,9 @@
 ## Paradigma: Declarativo
 
 ## Entidades:
-Cliente (id_cliente, nome_cliente, idade, senha, saldo_disponivel)  
+Cliente (id_cliente, nome_cliente, idade, senha, saldo)  
 Produto (id_produto, nome_produto, estoque, valor_unidade. tem_idade_restrita)  
-Compra (id_compra, id_cliente, id_produto, qtd_desejada, valor_unidade, subtotal, total)  
+Compra (id_compra, id_cliente, id_produto, qtd_desejada, valor_unidade, subtotal)  
 
 ## Regras:
 
@@ -15,8 +15,8 @@ Compra (id_compra, id_cliente, id_produto, qtd_desejada, valor_unidade, subtotal
 4. Quando o cliente não tem saldo e nem idade, então a compra não deve ser realizada e um comprovante deve informar que o cliente não tem saldo e idade
 5. Menu principal deve possuir as opções: registrar cliente, login de cliente e sair
 6. Menu de compras deve possuir as opçoes: comprar, adicionar saldo e sair
-7. Todo novo cliente inicia com saldo 100;
-8. Adicionar saldo por padrão deve adicionar 50;
+7. Todo novo cliente inicia com saldo 500;
+8. Adicionar saldo por padrão deve adicionar 100;
 
 ## Pseudocódigo
 
