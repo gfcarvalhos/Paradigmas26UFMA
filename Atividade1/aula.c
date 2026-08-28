@@ -25,6 +25,7 @@ struct Compra
   int id_compra;
   int id_cliente;
   int id_produto;
+  char produto[20];
   int qtd_desejada;
   float valor_unidade;
   float subtotal;
@@ -126,7 +127,71 @@ int removerProdutoDaCompra(struct Compra compra[], int item, int codigo)
   return item - 1;
 };
 
-void gerarCarrinhoDeCompras(struct Produto produtos[], struct Compra compra[], int totalProdutos)
+bool finalizarCompra(struct Compra compra[], float saldoCliente, int items)
+{
+  if (items == 0)
+  {
+    printf("\nCarrinho vazio. Nenhuma compra realizada.\n");
+    return false;
+  }
+  bool clienteTemSaldoParaCompra;
+  int numeracao = 1;
+  float totalGeral = 0;
+
+  printf("\n========== NOTA DE COMPRA ==========\n");
+  printf("%-20s %-6s %-10s %-10s\n", "Produto", "Qtd", "Unit.", "Subtotal");
+
+  for (int i = 0; i < items; i++)
+  {
+    totalGeral += compra[i].subtotal;
+    printf("%-20s %-6d R$%-8.2f R$%-8.2f\n",
+           compra[i].produto, compra[i].qtd_desejada,
+           compra[i].valor_unidade, compra[i].subtotal);
+  }
+  int opcao;
+  clienteTemSaldoParaCompra = saldoCliente >= totalGeral;
+
+  if (!clienteTemSaldoParaCompra)
+  {
+    printf("\n===== ATENCAO =====\n");
+    printf("Cliente nao possui saldo suficiente.\n");
+    printf("Saldo atual R$%.2f\n", saldoCliente);
+    numeracao = 0;
+  }
+  do
+  {
+    printf("\n===== ACOES =====\n");
+    if (clienteTemSaldoParaCompra)
+      printf("%d. Finalizar compra\n", numeracao);
+    printf("%d. Cancelar compra\n", numeracao + 1);
+    printf("\nEscolha uma opcao: ");
+    scanf("%d", &opcao);
+    switch (opcao)
+    {
+    case 1:
+      if (!clienteTemSaldoParaCompra)
+        return false;
+      return true;
+    case 2:
+      if (!clienteTemSaldoParaCompra)
+      {
+        printf("\nOpcao nao e valida.\n");
+        opcao = 3;
+        break;
+      }
+      return false;
+    default:
+      printf("\nOpcao nao e valida.\n");
+      break;
+    }
+  } while (opcao != 2);
+};
+
+void finalizarCompraComRestricao(struct Compra compra[], float saldoCliente, int items)
+{
+}
+
+int gerarCarrinhoDeCompras(struct Produto produtos[], struct Compra compra[], int totalProdutos)
 {
   int opcao;
   int item = 0;
@@ -165,6 +230,7 @@ void gerarCarrinhoDeCompras(struct Produto produtos[], struct Compra compra[], i
       compra[item].qtd_desejada = qtd;
       compra[item].valor_unidade = produtos[codigo - 1].valor_unitario;
       compra[item].subtotal = produtos[codigo - 1].valor_unitario * qtd;
+      strcpy(compra[item].produto, produtos[codigo - 1].nome_produto);
       item = item + 1;
       break;
     case 2:
@@ -173,7 +239,7 @@ void gerarCarrinhoDeCompras(struct Produto produtos[], struct Compra compra[], i
       item = removerProdutoDaCompra(compra, item, codigo);
       break;
     case 3:
-      break;
+      return item;
     case 4:
       break;
 
@@ -183,12 +249,17 @@ void gerarCarrinhoDeCompras(struct Produto produtos[], struct Compra compra[], i
     }
     printf("=================================\n");
   } while (opcao != 4);
+  return -1;
 };
 
 void exibirMenuCompra(struct Produto produtos[], struct Cliente clientes[], int posicaoCliente, int totalProdutos)
 {
   int opcao;
+  int items;
+  float saldoCliente = clientes[posicaoCliente].saldo;
+  bool clienteMenorDeIdade;
   struct Compra compra[10];
+
   do
   {
     printf("\n======= SISTEMA DE COMPRA =======");
@@ -203,8 +274,18 @@ void exibirMenuCompra(struct Produto produtos[], struct Cliente clientes[], int 
     switch (opcao)
     {
     case 1:
-      gerarCarrinhoDeCompras(produtos, compra, totalProdutos);
-      break;
+      items = gerarCarrinhoDeCompras(produtos, compra, totalProdutos);
+      if (items == -1)
+      {
+        break;
+      }
+      clienteMenorDeIdade = clientes[posicaoCliente].idade < 18;
+      if (clienteMenorDeIdade)
+      {
+        finalizarCompraComRestricao(compra, saldoCliente, items);
+      }
+      finalizarCompra(compra, saldoCliente, items);
+      opcao = 4;
     case 2:
       printf("\nSaldo atual: %.2f\n", clientes[posicaoCliente].saldo);
       break;
