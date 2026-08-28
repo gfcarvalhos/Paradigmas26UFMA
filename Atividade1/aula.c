@@ -41,7 +41,7 @@ int registrarCliente(struct Cliente clientes[], int totalClientes)
   printf("Informe uma senha (3 digitos): ");
   scanf("%d", &clientes[totalClientes].senha);
   printf("=================================\n");
-  clientes[totalClientes].saldo = 100.0;
+  clientes[totalClientes].saldo = 500.0;
   return totalClientes + 1;
 };
 
@@ -127,12 +127,12 @@ int removerProdutoDaCompra(struct Compra compra[], int item, int codigo)
   return item - 1;
 };
 
-bool finalizarCompra(struct Compra compra[], float saldoCliente, int items)
+void finalizarCompra(struct Compra compra[], float *saldoCliente, int items)
 {
   if (items == 0)
   {
     printf("\nCarrinho vazio. Nenhuma compra realizada.\n");
-    return false;
+    return;
   }
   bool clienteTemSaldoParaCompra;
   int numeracao = 1;
@@ -148,14 +148,15 @@ bool finalizarCompra(struct Compra compra[], float saldoCliente, int items)
            compra[i].produto, compra[i].qtd_desejada,
            compra[i].valor_unidade, compra[i].subtotal);
   }
+  printf("\nTotal a pagar: R$%.2f\n", totalGeral);
   int opcao;
-  clienteTemSaldoParaCompra = saldoCliente >= totalGeral;
+  clienteTemSaldoParaCompra = *saldoCliente >= totalGeral;
 
   if (!clienteTemSaldoParaCompra)
   {
     printf("\n===== ATENCAO =====\n");
     printf("Cliente nao possui saldo suficiente.\n");
-    printf("Saldo atual R$%.2f\n", saldoCliente);
+    printf("Saldo atual R$%.2f\n", *saldoCliente);
     numeracao = 0;
   }
   do
@@ -170,8 +171,9 @@ bool finalizarCompra(struct Compra compra[], float saldoCliente, int items)
     {
     case 1:
       if (!clienteTemSaldoParaCompra)
-        return false;
-      return true;
+        return;
+      *saldoCliente -= totalGeral;
+      return;
     case 2:
       if (!clienteTemSaldoParaCompra)
       {
@@ -179,7 +181,7 @@ bool finalizarCompra(struct Compra compra[], float saldoCliente, int items)
         opcao = 3;
         break;
       }
-      return false;
+      return;
     default:
       printf("\nOpcao nao e valida.\n");
       break;
@@ -187,9 +189,80 @@ bool finalizarCompra(struct Compra compra[], float saldoCliente, int items)
   } while (opcao != 2);
 };
 
-void finalizarCompraComRestricao(struct Compra compra[], float saldoCliente, int items)
+void finalizarCompraComRestricao(struct Compra compra[], float *saldoCliente, int items, struct Produto produtos[])
 {
-}
+  if (items == 0)
+  {
+    printf("\nCarrinho vazio. Nenhuma compra realizada.\n");
+    return;
+  }
+  bool clienteTemSaldoParaCompra;
+  bool produtoRestrito = false;
+  int numeracao = 1;
+  float totalGeral = 0;
+
+  printf("\n========== NOTA DE COMPRA ==========\n");
+  printf("%-20s %-6s %-10s %-10s\n", "Produto", "Qtd", "Unit.", "Subtotal");
+
+  for (int i = 0; i < items; i++)
+  {
+    totalGeral += compra[i].subtotal;
+    printf("%-20s %-6d R$%-8.2f R$%-8.2f\n",
+           compra[i].produto, compra[i].qtd_desejada,
+           compra[i].valor_unidade, compra[i].subtotal);
+    if (produtos[compra[i].id_produto].tem_idade_restrita)
+      produtoRestrito = produtos[compra[i].id_produto].tem_idade_restrita;
+  }
+  printf("\nTotal a pagar: R$%.2f\n", totalGeral);
+  int opcao;
+  clienteTemSaldoParaCompra = *saldoCliente >= totalGeral;
+
+  if (!clienteTemSaldoParaCompra || produtoRestrito)
+  {
+    numeracao = 0;
+    printf("\n===== ATENCAO =====\n");
+    if (!clienteTemSaldoParaCompra)
+    {
+      printf("Cliente nao possui saldo suficiente.\n");
+      printf("Saldo atual R$%.2f\n", *saldoCliente);
+    }
+    if (produtoRestrito)
+    {
+      printf("Cliente nao possui idade para comprar um ou mais produtos.\n");
+    }
+  }
+
+  do
+  {
+    printf("\n===== ACOES =====\n");
+    if (clienteTemSaldoParaCompra && !produtoRestrito)
+      printf("%d. Finalizar compra\n", numeracao);
+    printf("%d. Cancelar compra\n", numeracao + 1);
+    printf("\nEscolha uma opcao: ");
+    scanf("%d", &opcao);
+    switch (opcao)
+    {
+    case 1:
+      if (!clienteTemSaldoParaCompra || produtoRestrito)
+      {
+        return;
+      }
+      *saldoCliente -= totalGeral;
+      return;
+    case 2:
+      if (!clienteTemSaldoParaCompra || produtoRestrito)
+      {
+        printf("\nOpcao nao e valida.\n");
+        opcao = 3;
+        break;
+      }
+      return;
+    default:
+      printf("\nOpcao nao e valida.\n");
+      break;
+    }
+  } while (opcao != 2);
+};
 
 int gerarCarrinhoDeCompras(struct Produto produtos[], struct Compra compra[], int totalProdutos)
 {
@@ -256,8 +329,8 @@ void exibirMenuCompra(struct Produto produtos[], struct Cliente clientes[], int 
 {
   int opcao;
   int items;
-  float saldoCliente = clientes[posicaoCliente].saldo;
   bool clienteMenorDeIdade;
+  bool atualizarSaldoDoCliente;
   struct Compra compra[10];
 
   do
@@ -282,15 +355,16 @@ void exibirMenuCompra(struct Produto produtos[], struct Cliente clientes[], int 
       clienteMenorDeIdade = clientes[posicaoCliente].idade < 18;
       if (clienteMenorDeIdade)
       {
-        finalizarCompraComRestricao(compra, saldoCliente, items);
+        finalizarCompraComRestricao(compra, &clientes[posicaoCliente].saldo, items, produtos);
+        break;
       }
-      finalizarCompra(compra, saldoCliente, items);
-      opcao = 4;
+      finalizarCompra(compra, &clientes[posicaoCliente].saldo, items);
+      break;
     case 2:
       printf("\nSaldo atual: %.2f\n", clientes[posicaoCliente].saldo);
       break;
     case 3:
-      clientes[posicaoCliente].saldo = clientes[posicaoCliente].saldo + 50.0;
+      clientes[posicaoCliente].saldo = clientes[posicaoCliente].saldo + 100.0;
       printf("\nSaldo atual: %.2f\n", clientes[posicaoCliente].saldo);
       break;
 
