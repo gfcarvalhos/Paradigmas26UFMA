@@ -20,24 +20,41 @@ def define_conceito(media):
 def valida_aproveitamento(conceito):
     return "Aproveita" if conceito in ["A", "B", "C"] else "Não Aproveita"
 
+
+def processa_disciplina():
+    nome_disciplina = input("Informe nome da disciplina: ")
+    qtd = int(input("Informe quantidade de notas: "))
+
+    notas = pega_notas(qtd)
+    media = calcula_media(notas)
+    conceito = define_conceito(media)
+    aproveitamento = valida_aproveitamento(conceito)
+
+    return [nome_disciplina, conceito, aproveitamento]
+
 def __main__():
   print("###### Sistema de Aproveitamento ######")
-  nome_disciplina = input("Informe nome da disciplina: ")
-  qtd = int(input("Informe quantidade de notas: "))
 
-  notas = pega_notas(qtd)
-  media = calcula_media(notas)
-  conceito = define_conceito(media)
-  aproveitamento = valida_aproveitamento(conceito)
+  disciplinas = []
+  while True:
+        disciplina = processa_disciplina()
+        disciplinas.append(disciplina)
 
+        continuar = input("Deseja adicionar outra disciplina? (s/n): ")
 
-  vetor_resposta = [nome_disciplina, conceito, aproveitamento]
+        if continuar.lower() != "s":
+            break
+        
   print(
-    f"    Doutorado\n"
-    f"_______________\n"
-    f"{'Disciplina':<20}{'Conceito':<12}{'Aprovação':<12}\n"
-    f"{vetor_resposta[0]:<20}{vetor_resposta[1]:<12}{vetor_resposta[2]:<12}"
-)
+        f"\n    Doutorado\n"
+        f"_______________\n"
+        f"{'Disciplina':<20}{'Conceito':<12}{'Aprovação':<15}"
+    )
+
+  for disciplina in disciplinas:
+    print(
+      f"{disciplina[0]:<20}{disciplina[1]:<12}{disciplina[2]:<12}"
+  )
 
 
 
