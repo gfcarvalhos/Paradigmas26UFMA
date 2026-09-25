@@ -7,6 +7,54 @@ void consultarSaldo(float saldo)
   printf("===========================\n");
 }
 
+float depositar(float saldo, float valor)
+{
+  return saldo + valor;
+}
+
+float sacar(float saldo, float valor)
+{
+  return saldo - valor;
+}
+
+float menuDeposito(float saldo)
+{
+  float valor;
+  printf("\n===== DEPOSITO =====\n");
+  printf("Informe o valor a depositar: R$ ");
+  scanf("%f", &valor);
+
+  saldo = depositar(saldo, valor);
+
+  printf("Deposito realizado com sucesso!\n");
+  printf("Saldo atual: R$ %.2f\n", saldo);
+  printf("====================\n");
+
+  return saldo;
+}
+
+float menuSaque(float saldo)
+{
+  float valor;
+
+  printf("\n===== SAQUE =====\n");
+  printf("Informe o valor a sacar: R$ ");
+  scanf("%f", &valor);
+
+  if (valor > saldo)
+  {
+    printf("Saldo insuficiente!\n");
+    return saldo;
+  }
+
+  saldo = sacar(saldo, valor);
+
+  printf("Saque realizado com sucesso!\n");
+  printf("Saldo atual: R$ %.2f\n", saldo);
+
+  return saldo;
+}
+
 void exibirMenu()
 {
   printf("\n====== MENU PRINCIPAL ======\n");
@@ -32,7 +80,8 @@ int main()
       consultarSaldo(saldo);
       break;
     case 2:
-    // depositar
+      menuDeposito(saldo);
+      break;
     case 3:
     // sacar
     case 4:
