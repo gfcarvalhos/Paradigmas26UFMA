@@ -83,9 +83,11 @@ int main()
       menuDeposito(saldo);
       break;
     case 3:
-    // sacar
+      menuSaque(saldo);
+      break;
     case 4:
-    // encerrar
+      printf("\nSistema encerrado.\n");
+      break;
     default:
       printf("\nOpcao invalida!\n");
     }
