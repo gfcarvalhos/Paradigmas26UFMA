@@ -1,5 +1,12 @@
 #include <stdio.h>
 
+void consultarSaldo(float saldo)
+{
+  printf("\n===== CONSULTAR SALDO =====\n");
+  printf("Saldo atual: R$ %.2f\n", saldo);
+  printf("===========================\n");
+}
+
 void exibirMenu()
 {
   printf("\n====== MENU PRINCIPAL ======\n");
@@ -18,5 +25,20 @@ int main()
   do
   {
     exibirMenu();
+
+    switch (opcao)
+    {
+    case 1:
+      consultarSaldo(saldo);
+      break;
+    case 2:
+    // depositar
+    case 3:
+    // sacar
+    case 4:
+    // encerrar
+    default:
+      printf("\nOpcao invalida!\n");
+    }
   } while (opcao != 4);
 }
